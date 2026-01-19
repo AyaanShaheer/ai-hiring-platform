@@ -1,0 +1,18 @@
+﻿John Doe
+Software Engineer
+Email: john.doe@example.com
+Phone: +1-555-123-4567
+
+PROFESSIONAL EXPERIENCE
+Senior Software Engineer at TechCorp (2020-Present)
+- Developed Python applications using Django and FastAPI
+- Worked with PostgreSQL, MongoDB, and Redis databases
+- Deployed applications on AWS using Docker and Kubernetes
+- 5 years of experience in full-stack development
+
+SKILLS
+Python, JavaScript, React, Node.js, SQL, AWS, Docker, Kubernetes, Git, Machine Learning, TensorFlow
+
+EDUCATION
+Bachelor of Technology in Computer Science
+XYZ University, 2018
