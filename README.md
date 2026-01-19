@@ -66,7 +66,7 @@ A production-grade, end-to-end AI-powered hiring platform that helps recruiters 
 ### 1. Clone Repository
 
 \`\`\`bash
-git clone https://github.com/YOUR_USERNAME/ai-hiring-platform.git
+git clone https://github.com/AyaanShaheer/ai-hiring-platform.git
 cd ai-hiring-platform
 \`\`\`
 
@@ -305,10 +305,10 @@ Built as a production-grade portfolio project demonstrating:
 ## 🚀 Roadmap
 
 ### Phase 1: Core Backend ✅ (Completed)
-- [x] Authentication & Authorization
-- [x] Resume Upload & Parsing
-- [x] Job Management
-- [x] AI-Powered Matching
+- [✅] Authentication & Authorization
+- [✅] Resume Upload & Parsing
+- [✅] Job Management
+- [✅] AI-Powered Matching
 
 ### Phase 2: AI/ML Enhancements (Next)
 - [ ] GenAI Explanations for matches
