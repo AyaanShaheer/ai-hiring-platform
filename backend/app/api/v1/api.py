@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, resumes, jobs, matching
+from app.api.v1.endpoints import auth, resumes, jobs, matching, fraud, bias, recommendations
 from app.services.genai_service import GenAIService
 
 api_router = APIRouter()
@@ -9,6 +9,10 @@ api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
 api_router.include_router(resumes.router, prefix="/resumes", tags=["resumes"])
 api_router.include_router(jobs.router, prefix="/jobs", tags=["jobs"])
 api_router.include_router(matching.router, prefix="/matching", tags=["matching"])
+api_router.include_router(fraud.router, prefix="/fraud", tags=["fraud-detection"])
+api_router.include_router(bias.router, prefix="/bias", tags=["bias-detection"])
+api_router.include_router(recommendations.router, prefix="/recommendations", tags=["recommendations"])
+
 
 @api_router.get("/test")
 async def test_endpoint():

@@ -1,0 +1,43 @@
+﻿{
+    "job_id":  1,
+    "job_title":  "Senior Python Developer",
+    "total_candidates_screened":  1,
+    "recommendations_count":  1,
+    "top_candidates":  [
+                           {
+                               "resume_id":  1,
+                               "candidate_name":  "Ayaan Shaheer",
+                               "candidate_email":  "ayan.shaheer.dev@gmail.com",
+                               "similarity_score":  70.58,
+                               "skills":  [
+                                              "nlp",
+                                              "ansible",
+                                              "python",
+                                              "javascript",
+                                              "jenkins",
+                                              "linux",
+                                              "go",
+                                              "react",
+                                              "terraform",
+                                              "mysql",
+                                              "mongodb",
+                                              "git",
+                                              "postgresql",
+                                              "kubernetes",
+                                              "azure",
+                                              "deep learning",
+                                              "machine learning",
+                                              "redis",
+                                              "fastapi",
+                                              "aws",
+                                              "docker",
+                                              "sql",
+                                              "java"
+                                          ],
+                               "experience_years":  2.0,
+                               "rank":  1,
+                               "outreach_message":  "Dear Ayaan Shaheer,\n\nI came across your profile and was impressed by your strong background in Python development, as well as your experience with relevant technologies such as Ansible, Jenkins, and Linux. Your skills in nlp, javascript, and react also caught my attention, making you a great fit for our Senior Python Developer role at TechCorp.\n\nWe\u0027re a company that values innovation and scalability, and we\u0027re looking for someone with 5+ years of experience building scalable applications. I\u0027d love to learn more about your experience and how it aligns with our goals. Your unique blend of skills and expertise would be a valuable asset to our team.\n\nI\u0027m excited about the possibility of having you on board and exploring how your skills can contribute to our company\u0027s success. If you\u0027re interested in learning more about the role and our company culture, I\u0027d be happy to set up a call to discuss further.\n\nPlease let me know if you\u0027re available for a conversation this week or next. I look forward to hearing from you and exploring this opportunity together.\n\nBest regards,\n[Your Name]"
+                           }
+                       ],
+    "average_match_score":  70.58
+}

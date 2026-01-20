@@ -1,0 +1,31 @@
+﻿{
+    "resume_id":  1,
+    "candidate_name":  "Ayaan Shaheer",
+    "inflation_score":  80.0,
+    "risk_level":  "high",
+    "fraud_flags":  [
+                        "Too many skills (23) for 2.0 years of experience",
+                        "Senior-level title with only 2.0 years of experience"
+                    ],
+    "flag_count":  2,
+    "authenticity_assessment":  "low",
+    "concerns":  [
+                     "Overly broad and deep skill set for a relatively short period of experience",
+                     "Senior-level title and responsibilities claimed with limited experience",
+                     "Lack of specific details about achievements and impact in previous roles"
+                 ],
+    "red_flags":  [
+                      "Too many skills listed (23) for 2.0 years of experience",
+                      "Senior-level title with only 2.0 years of experience"
+                  ],
+    "recommendations":  [
+                            "Request more specific examples of projects and achievements",
+                            "Ask for references or proof of previous work experience"
+                        ],
+    "verification_suggestions":  [
+                                     "Verify work experience and job titles through previous employers",
+                                     "Check online presence (e.g., GitHub, LinkedIn) for consistency with claimed skills and experience"
+                                 ],
+    "overall_verdict":  "investigate",
+    "reasoning":  "The candidate\u0027s claims and skill set seem overly ambitious for their level of experience, warranting further investigation to verify the authenticity of their resume."
+}

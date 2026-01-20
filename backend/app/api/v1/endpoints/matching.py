@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 from typing import List
@@ -11,18 +11,59 @@ from app.models.resume import Resume
 from app.models.application import Application
 from app.schemas.application import ApplicationCreate, ApplicationResponse, ApplicationDetailResponse, ApplicationUpdate
 from app.services.matching_service import MatchingService
+from app.services.genai_service import generate_match_explanation
 
 router = APIRouter()
 matching_service = MatchingService()
 
 
+async def generate_explanation_background(
+    application_id: int,
+    job: Job,
+    resume: Resume,
+    match_scores: dict,
+    db: AsyncSession
+):
+    """Background task to generate AI explanation"""
+    try:
+        explanation_data = await generate_match_explanation(
+            job_title=job.title,
+            job_description=job.description,
+            job_requirements=job.requirements or "",
+            candidate_name=resume.candidate_name or "Candidate",
+            candidate_skills=resume.skills or [],
+            candidate_experience_years=resume.experience_years or 0,
+            required_skills=job.required_skills or [],
+            required_experience_min=job.experience_years_min or 0,
+            skill_match_score=match_scores['skill_match_score'],
+            experience_match_score=match_scores['experience_match_score'],
+            overall_match_score=match_scores['overall_match_score']
+        )
+        
+        # Update application with explanation
+        result = await db.execute(
+            select(Application).filter(Application.id == application_id)
+        )
+        application = result.scalars().first()
+        
+        if application:
+            application.explanation = explanation_data.get('summary', '')
+            application.strengths = explanation_data.get('strengths', [])
+            application.weaknesses = explanation_data.get('weaknesses', [])
+            await db.commit()
+    except Exception as e:
+        print(f"Error generating explanation: {e}")
+
+
 @router.post("/match", response_model=ApplicationResponse, status_code=status.HTTP_201_CREATED)
 async def create_match(
     application: ApplicationCreate,
+    background_tasks: BackgroundTasks,
+    generate_explanation: bool = True,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_active_user)
 ):
-    """Match a resume to a job and create an application"""
+    """Match a resume to a job and create an application with optional AI explanation"""
     
     # Get job
     job_result = await db.execute(
@@ -88,6 +129,17 @@ async def create_match(
     db.add(db_application)
     await db.commit()
     await db.refresh(db_application)
+    
+    # Generate AI explanation in background if requested
+    if generate_explanation:
+        background_tasks.add_task(
+            generate_explanation_background,
+            db_application.id,
+            job,
+            resume,
+            match_scores,
+            db
+        )
     
     return ApplicationResponse.model_validate(db_application)
 
@@ -222,3 +274,112 @@ async def update_application(
     await db.refresh(application)
     
     return ApplicationResponse.model_validate(application)
+
+
+@router.post("/applications/{application_id}/explain", response_model=ApplicationDetailResponse)
+async def regenerate_explanation(
+    application_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Regenerate AI explanation for an existing application"""
+    
+    # Get application
+    result = await db.execute(
+        select(Application).filter(Application.id == application_id)
+    )
+    application = result.scalars().first()
+    
+    if not application:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Application not found"
+        )
+    
+    # Get job and verify ownership
+    job_result = await db.execute(
+        select(Job).filter(Job.id == application.job_id)
+    )
+    job = job_result.scalars().first()
+    
+    if job.recruiter_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized"
+        )
+    
+    # Get resume
+    resume_result = await db.execute(
+        select(Resume).filter(Resume.id == application.resume_id)
+    )
+    resume = resume_result.scalars().first()
+    
+    # Generate explanation
+    explanation_data = await generate_match_explanation(
+        job_title=job.title,
+        job_description=job.description,
+        job_requirements=job.requirements or "",
+        candidate_name=resume.candidate_name or "Candidate",
+        candidate_skills=resume.skills or [],
+        candidate_experience_years=resume.experience_years or 0,
+        required_skills=job.required_skills or [],
+        required_experience_min=job.experience_years_min or 0,
+        skill_match_score=application.skill_match_score or 0,
+        experience_match_score=application.experience_match_score or 0,
+        overall_match_score=application.match_score or 0
+    )
+    
+    # Update application
+    application.explanation = explanation_data.get('summary', '')
+    application.strengths = explanation_data.get('strengths', [])
+    application.weaknesses = explanation_data.get('weaknesses', [])
+    
+    await db.commit()
+    await db.refresh(application)
+    
+    # Create response
+    response = ApplicationDetailResponse.model_validate(application)
+    response.job_title = job.title
+    response.candidate_name = resume.candidate_name
+    response.candidate_email = resume.candidate_email
+    
+    return response
+
+
+@router.delete("/applications/{application_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_application(
+    application_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Delete an application"""
+    
+    result = await db.execute(
+        select(Application).filter(Application.id == application_id)
+    )
+    application = result.scalars().first()
+    
+    if not application:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Application not found"
+        )
+    
+    # Get job to verify ownership
+    job_result = await db.execute(
+        select(Job).filter(Job.id == application.job_id)
+    )
+    job = job_result.scalars().first()
+    
+    if job.recruiter_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to delete this application"
+        )
+    
+    await db.delete(application)
+    await db.commit()
+    
+    return None
+
+

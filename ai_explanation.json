@@ -1,0 +1,28 @@
+﻿{
+    "id":  1,
+    "job_id":  1,
+    "resume_id":  1,
+    "match_score":  65.54,
+    "skill_match_score":  90.91,
+    "experience_match_score":  40.0,
+    "semantic_similarity_score":  40.42,
+    "recruiter_status":  "shortlisted",
+    "recruiter_notes":  "Strong Python and AWS experience. Good match for the role.",
+    "recruiter_override_score":  null,
+    "created_at":  "2026-01-19T19:07:39.736118Z",
+    "explanation":  "Ayaan Shaheer is a strong technical match for the Senior Python Developer role, but falls short in terms of experience. The candidate\u0027s skills align well with the job requirements, but the 2-year experience gap may impact their ability to lead or build scalable applications. Overall, the match quality is moderate.",
+    "strengths":  [
+                      "Strong Python skills",
+                      "Experience with FastAPI and Docker",
+                      "Familiarity with Kubernetes and AWS"
+                  ],
+    "weaknesses":  [
+                       "Limited experience building scalable applications",
+                       "No direct experience with Django",
+                       "Lack of experience in a senior developer role"
+                   ],
+    "bias_flags":  null,
+    "job_title":  "Senior Python Developer",
+    "candidate_name":  "Ayaan Shaheer",
+    "candidate_email":  "ayan.shaheer.dev@gmail.com"
+}

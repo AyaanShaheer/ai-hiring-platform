@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Dict, List
 import google.generativeai as genai
 from groq import Groq
 from app.core.config import settings
+import json
 
 
 class GenAIProvider(ABC):
@@ -36,13 +37,10 @@ class GeminiProvider(GenAIProvider):
 
 
 class GroqProvider(GenAIProvider):
-    """Groq implementation - FIXED"""
+    """Groq implementation"""
     
     def __init__(self):
-        # Initialize Groq client without proxies parameter
-        self.client = Groq(
-            api_key=settings.GROQ_API_KEY
-        )
+        self.client = Groq(api_key=settings.GROQ_API_KEY)
     
     async def generate_explanation(self, prompt: str) -> str:
         try:
@@ -50,7 +48,7 @@ class GroqProvider(GenAIProvider):
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are an expert AI recruiter assistant. Provide clear, concise explanations."
+                        "content": "You are an expert AI recruiter assistant. Provide clear, concise, and actionable explanations."
                     },
                     {
                         "role": "user",
@@ -89,41 +87,96 @@ class GenAIService:
         return cls._instance
 
 
-# Convenience function
 async def generate_match_explanation(
     job_title: str,
+    job_description: str,
     job_requirements: str,
-    candidate_skills: list,
-    candidate_experience: str,
-    match_score: float
-) -> dict:
-    """Generate explanation for candidate-job match"""
+    candidate_name: str,
+    candidate_skills: List[str],
+    candidate_experience_years: float,
+    required_skills: List[str],
+    required_experience_min: int,
+    skill_match_score: float,
+    experience_match_score: float,
+    overall_match_score: float
+) -> Dict:
+    """Generate detailed explanation for candidate-job match using GenAI"""
     
     provider = GenAIService.get_provider()
     
-    prompt = f"""
-Analyze this candidate-job match and provide a concise explanation:
+    prompt = f"""Analyze this candidate-job match and provide a detailed, actionable explanation.
 
-Job Title: {job_title}
-Job Requirements: {job_requirements}
+**Job Details:**
+- Title: {job_title}
+- Description: {job_description[:500]}
+- Requirements: {job_requirements[:500] if job_requirements else 'Not specified'}
+- Required Skills: {', '.join(required_skills)}
+- Minimum Experience: {required_experience_min} years
 
-Candidate Skills: {', '.join(candidate_skills)}
-Candidate Experience: {candidate_experience}
+**Candidate Profile:**
+- Name: {candidate_name}
+- Skills: {', '.join(candidate_skills)}
+- Experience: {candidate_experience_years} years
 
-Match Score: {match_score}/100
+**Match Scores:**
+- Skill Match: {skill_match_score}%
+- Experience Match: {experience_match_score}%
+- Overall Match: {overall_match_score}%
 
-Provide:
-1. Top 3 strengths (why this candidate is a good fit)
-2. Top 3 gaps or weaknesses (what's missing or concerning)
-3. Overall recommendation (1-2 sentences)
+Please provide a JSON response with the following structure:
+{{
+    "summary": "A 2-3 sentence overview of the match quality",
+    "strengths": ["strength 1", "strength 2", "strength 3"],
+    "weaknesses": ["weakness 1", "weakness 2", "weakness 3"],
+    "missing_skills": ["skill 1", "skill 2"],
+    "recommendation": "hire/interview/reject",
+    "reasoning": "1-2 sentences explaining the recommendation"
+}}
 
-Format your response as JSON with keys: strengths (array), weaknesses (array), recommendation (string)
+Focus on:
+1. Specific skills that match or are missing
+2. Experience level alignment
+3. Practical hiring recommendation
+4. Actionable insights for the recruiter
+
+Respond ONLY with valid JSON, no additional text.
 """
     
-    response_text = await provider.generate_explanation(prompt)
-    
-    # Parse response (you can add JSON parsing logic here)
-    return {
-        "raw_explanation": response_text,
-        "prompt_used": prompt
-    }
+    try:
+        response_text = await provider.generate_explanation(prompt)
+        
+        # Try to parse JSON response
+        # Remove markdown code blocks if present
+        response_text = response_text.strip()
+        if response_text.startswith("```json"):
+            response_text = response_text[7:]
+        if response_text.startswith("```"):
+            response_text = response_text[3:]
+        if response_text.endswith("```"):
+            response_text = response_text[:-3]
+        response_text = response_text.strip()
+        
+        parsed_response = json.loads(response_text)
+        
+        return {
+            "summary": parsed_response.get("summary", ""),
+            "strengths": parsed_response.get("strengths", []),
+            "weaknesses": parsed_response.get("weaknesses", []),
+            "missing_skills": parsed_response.get("missing_skills", []),
+            "recommendation": parsed_response.get("recommendation", "interview"),
+            "reasoning": parsed_response.get("reasoning", ""),
+            "raw_response": response_text
+        }
+    except json.JSONDecodeError as e:
+        # Fallback if JSON parsing fails
+        return {
+            "summary": response_text[:200],
+            "strengths": ["Unable to parse structured response"],
+            "weaknesses": [],
+            "missing_skills": [],
+            "recommendation": "interview",
+            "reasoning": "AI response parsing failed",
+            "raw_response": response_text
+        }
+    except Exception as e:
+        raise Exception(f"Error generating explanation: {str(e)}")

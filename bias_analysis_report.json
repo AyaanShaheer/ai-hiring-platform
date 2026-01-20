@@ -1,0 +1,33 @@
+﻿{
+    "job_id":  1,
+    "job_title":  "Senior Python Developer",
+    "bias_score":  20.0,
+    "bias_risk_level":  "low",
+    "flags":  [
+                  {
+                      "category":  "age",
+                      "matches":  [
+                                      "senior"
+                                  ],
+                      "severity":  "high",
+                      "message":  "References to age: senior"
+                  }
+              ],
+    "has_bias":  true,
+    "potential_biases":  [
+                             "age bias",
+                             "experience bias"
+                         ],
+    "recommendations":  [
+                            "Use neutral job titles that do not imply a specific age or level of experience",
+                            "Focus on essential skills and qualifications rather than years of experience",
+                            "Use inclusive language to attract a diverse pool of candidates"
+                        ],
+    "best_practices":  [
+                           "Use objective evaluation criteria to assess candidate qualifications",
+                           "Provide clear and concise job descriptions that outline essential duties and responsibilities",
+                           "Ensure that all candidates are evaluated based on the same criteria"
+                       ],
+    "fairness_score":  60.0,
+    "summary":  "The job description for the Senior Python Developer position may be at risk for age bias due to the use of the term \u0027senior\u0027, which may discourage younger candidates from applying. To mitigate this risk, it is recommended to use neutral language and focus on essential skills and qualifications. By doing so, the company can ensure compliance with EEO laws and regulations, and attract a diverse pool of qualified candidates."
+}
