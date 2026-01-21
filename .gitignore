@@ -4,27 +4,34 @@ __pycache__/
 *$py.class
 *.so
 .Python
-venv/
-env/
-*.egg-info/
-dist/
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
 
 # Environment variables
 .env
-*.env
 .env.local
+.env.*.local
 
-# Database
-*.db
-*.sqlite3
-
-# Uploaded files
-uploads/
-*.pdf
-*.docx
-
-# IDEs
+# IDE
 .vscode/
 .idea/
 *.swp
@@ -35,17 +42,35 @@ uploads/
 .DS_Store
 Thumbs.db
 
+# Uploads
+backend/uploads/*.pdf
+backend/uploads/*.docx
+backend/uploads/*.doc
+
 # Logs
 *.log
+logs/
 
-# Alembic
-alembic/versions/*.pyc
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Test files
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Analytics exports
+*.csv
+*.json
+!backend/app/**/*.json
 
 # Node (for future frontend)
 node_modules/
 .next/
 out/
-*.tsbuildinfo
+build/
 
 # Docker
-*.env.docker
+.docker/

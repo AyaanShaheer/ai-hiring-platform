@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings
 from typing import Optional, Literal
 from pathlib import Path
-
+from functools import lru_cache
 
 class Settings(BaseSettings):
     # Application
@@ -23,7 +23,29 @@ class Settings(BaseSettings):
     
     # Redis
     REDIS_URL: str
+
+    # Email settings
+    SENDGRID_API_KEY: Optional[str] = None
+    EMAIL_ENABLED: bool = True
+    EMAIL_FROM: str = "noreply@aihiring.com"
+    EMAIL_FROM_NAME: str = "AI Hiring Platform"
     
+    # SMTP Fallback (Incase Sendgrid not working/available)
+    SMTP_HOST: Optional[str] = None
+    SMTP_PORT: int = 587
+    SMTP_USER: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    SMTP_TLS: bool = True
+
+    # Celery Settings
+    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
+    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
+    CELERY_TASK_TRACK_STARTED: bool = True
+    CELERY_TASK_TIME_LIMIT: int = 300  # 5 minutes
+    
+    # Email Templates
+    FRONTEND_URL: str = "http://localhost:3000"  # For email links
+
     # GenAI Provider Selection
     GENAI_PROVIDER: Literal["gemini", "groq"] = "gemini"
     
@@ -78,7 +100,12 @@ class Settings(BaseSettings):
         case_sensitive = True
 
 
-settings = Settings()
+@lru_cache()
+def get_settings():
+    return Settings()
+
+
+settings = get_settings()
 
 # Ensure upload directories exist
 settings.upload_dir_path.mkdir(parents=True, exist_ok=True)
