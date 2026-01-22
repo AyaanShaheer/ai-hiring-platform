@@ -36,3 +36,6 @@ class Application(Base):
     # Relationships - use string references
     job = relationship("Job", back_populates="applications", lazy="selectin")
     resume = relationship("Resume", back_populates="applications", lazy="selectin")
+
+    # Interview 
+    interviews = relationship("Interview", back_populates="application")
