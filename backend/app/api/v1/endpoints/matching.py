@@ -173,8 +173,10 @@ async def get_job_matches(
             detail="Not authorized to view matches for this job"
         )
     
-    # Get applications
-    query = select(Application).filter(
+    # Get applications with resumes
+    query = select(Application, Resume).join(
+        Resume, Application.resume_id == Resume.id
+    ).filter(
         and_(
             Application.job_id == job_id,
             Application.match_score >= min_score
@@ -182,9 +184,17 @@ async def get_job_matches(
     ).order_by(Application.match_score.desc()).offset(skip).limit(limit)
     
     result = await db.execute(query)
-    applications = result.scalars().all()
+    app_resume_pairs = result.all()
     
-    return [ApplicationResponse.model_validate(app) for app in applications]
+    # Build response with job/resume info
+    responses = []
+    for app, resume in app_resume_pairs:
+        resp = ApplicationResponse.model_validate(app)
+        resp.job_title = job.title
+        resp.candidate_name = resume.candidate_name if resume else None
+        responses.append(resp)
+    
+    return responses
 
 
 @router.get("/applications/{application_id}", response_model=ApplicationDetailResponse)

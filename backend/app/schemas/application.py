@@ -26,6 +26,9 @@ class ApplicationResponse(BaseModel):
     recruiter_notes: Optional[str]
     recruiter_override_score: Optional[float]
     created_at: datetime
+    # Include job and resume info for list views
+    job_title: Optional[str] = None
+    candidate_name: Optional[str] = None
     
     model_config = ConfigDict(from_attributes=True)
 

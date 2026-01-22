@@ -71,6 +71,23 @@ node_modules/
 .next/
 out/
 build/
+dist/
+.cache/
 
 # Docker
 .docker/
+
+# Frontend specific
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/.turbo/
+
+# Antigravity artifacts
+.gemini/
+
+# Package lock files (optional - uncomment if you want to ignore)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+

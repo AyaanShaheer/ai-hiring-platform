@@ -1,0 +1,27 @@
+import React from 'react';
+import DashboardLayout from '../../components/layout/DashboardLayout';
+import Card from '../../components/ui/Card';
+import { Calendar } from 'lucide-react';
+
+const InterviewsListPage: React.FC = () => {
+    return (
+        <DashboardLayout>
+            <div className="space-y-6">
+                <div>
+                    <h1 className="text-3xl font-bold text-dark-50 mb-2">Interviews</h1>
+                    <p className="text-dark-400">Manage interview schedules</p>
+                </div>
+
+                <Card>
+                    <div className="text-center py-12">
+                        <Calendar className="w-16 h-16 mx-auto text-dark-600 mb-4" />
+                        <h3 className="text-xl font-semibold text-dark-300 mb-2">Interview Management</h3>
+                        <p className="text-dark-500">Interview scheduling features coming soon</p>
+                    </div>
+                </Card>
+            </div>
+        </DashboardLayout>
+    );
+};
+
+export default InterviewsListPage;
