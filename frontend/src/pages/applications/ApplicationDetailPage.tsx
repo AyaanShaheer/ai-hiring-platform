@@ -5,9 +5,10 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { ArrowLeft, Briefcase, User, TrendingUp, Lightbulb, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Briefcase, User, TrendingUp, Lightbulb, RefreshCw, Calendar } from 'lucide-react';
 import { applicationService } from '../../services/applicationService';
 import type { Application } from '../../types';
+import ScheduleInterviewModal from '../interviews/ScheduleInterviewModal';
 
 const ApplicationDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -16,6 +17,7 @@ const ApplicationDetailPage: React.FC = () => {
     const [application, setApplication] = useState<Application | null>(null);
     const [loading, setLoading] = useState(true);
     const [regenerating, setRegenerating] = useState(false);
+    const [showScheduleModal, setShowScheduleModal] = useState(false);
 
     useEffect(() => {
         const fetchApplication = async () => {
@@ -271,8 +273,26 @@ const ApplicationDetailPage: React.FC = () => {
                         >
                             Reject
                         </Button>
+                        <Button
+                            variant="primary"
+                            onClick={() => setShowScheduleModal(true)}
+                            className="ml-auto flex items-center gap-2"
+                        >
+                            <Calendar className="w-4 h-4" />
+                            Schedule Interview
+                        </Button>
                     </div>
                 </Card>
+
+                {/* Schedule Interview Modal */}
+                <ScheduleInterviewModal
+                    applicationId={application.id}
+                    candidateName={application.candidate_name || application.resume?.candidate_name}
+                    jobTitle={application.job_title || application.job?.title}
+                    isOpen={showScheduleModal}
+                    onClose={() => setShowScheduleModal(false)}
+                    onSuccess={() => navigate('/interviews')}
+                />
             </div>
         </DashboardLayout>
     );

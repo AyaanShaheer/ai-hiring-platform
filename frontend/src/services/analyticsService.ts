@@ -32,4 +32,14 @@ export const analyticsService = {
         });
         return response.data;
     },
+
+    async getAIInsights(): Promise<any> {
+        const response = await api.get('/analytics/insights');
+        return response.data;
+    },
+
+    async getComparison(): Promise<any> {
+        const response = await api.get('/analytics/comparison');
+        return response.data;
+    }
 };

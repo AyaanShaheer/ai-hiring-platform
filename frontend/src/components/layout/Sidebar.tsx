@@ -6,7 +6,8 @@ import {
     FileText,
     Users,
     BarChart3,
-    Calendar
+    Calendar,
+    Sparkles
 } from 'lucide-react';
 
 const Sidebar: React.FC = () => {
@@ -16,6 +17,7 @@ const Sidebar: React.FC = () => {
         { to: '/resumes', icon: FileText, label: 'Resumes' },
         { to: '/applications', icon: Users, label: 'Applications' },
         { to: '/interviews', icon: Calendar, label: 'Interviews' },
+        { to: '/recommendations', icon: Sparkles, label: 'AI Matching' },
         { to: '/analytics', icon: BarChart3, label: 'Analytics' },
     ];
 

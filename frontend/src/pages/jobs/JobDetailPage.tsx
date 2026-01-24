@@ -6,10 +6,11 @@ import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import { ArrowLeft, MapPin, Briefcase, DollarSign, Target, Zap, CheckCircle } from 'lucide-react';
+import { ArrowLeft, MapPin, Briefcase, DollarSign, Target, Zap, CheckCircle, AlertTriangle, Shield, Lightbulb, ChevronDown, ChevronUp } from 'lucide-react';
 import { jobService } from '../../services/jobService';
 import { resumeService } from '../../services/resumeService';
 import { applicationService } from '../../services/applicationService';
+import { biasService, type BiasAnalysis } from '../../services/biasService';
 import type { Job, Resume } from '../../types';
 
 const JobDetailPage: React.FC = () => {
@@ -23,6 +24,9 @@ const JobDetailPage: React.FC = () => {
     const [selectedResumes, setSelectedResumes] = useState<number[]>([]);
     const [matching, setMatching] = useState(false);
     const [matchSuccess, setMatchSuccess] = useState(false);
+    const [biasAnalysis, setBiasAnalysis] = useState<BiasAnalysis | null>(null);
+    const [analyzingBias, setAnalyzingBias] = useState(false);
+    const [showBiasDetails, setShowBiasDetails] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -74,6 +78,30 @@ const JobDetailPage: React.FC = () => {
                 ? prev.filter(id => id !== resumeId)
                 : [...prev, resumeId]
         );
+    };
+
+    const handleAnalyzeBias = async () => {
+        if (!job) return;
+        setAnalyzingBias(true);
+        try {
+            const analysis = await biasService.analyzeJobBias(job.id, true);
+            setBiasAnalysis(analysis);
+            setShowBiasDetails(true);
+        } catch (error) {
+            console.error('Failed to analyze bias:', error);
+            alert('Failed to analyze bias. Please try again.');
+        } finally {
+            setAnalyzingBias(false);
+        }
+    };
+
+    const getBiasRiskColor = (level: string) => {
+        switch (level) {
+            case 'high': return 'text-red-400 bg-red-500/20 border-red-500/30';
+            case 'medium': return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30';
+            case 'low': return 'text-green-400 bg-green-500/20 border-green-500/30';
+            default: return 'text-slate-400 bg-slate-500/20 border-slate-500/30';
+        }
     };
 
     if (loading) {
@@ -173,6 +201,157 @@ const JobDetailPage: React.FC = () => {
                                         </span>
                                     ))}
                                 </div>
+                            </div>
+                        )}
+                    </div>
+                </Card>
+
+                {/* Bias Detection Section */}
+                <Card>
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <Shield className="w-6 h-6 text-primary-400" />
+                                <div>
+                                    <h2 className="text-xl font-semibold text-slate-50">Bias Detection</h2>
+                                    <p className="text-sm text-slate-400">AI-powered analysis for inclusive language</p>
+                                </div>
+                            </div>
+                            <Button
+                                variant="primary"
+                                onClick={handleAnalyzeBias}
+                                loading={analyzingBias}
+                                icon={<Zap className="w-4 h-4" />}
+                            >
+                                {biasAnalysis ? 'Re-analyze' : 'Analyze for Bias'}
+                            </Button>
+                        </div>
+
+                        {biasAnalysis && (
+                            <div className="space-y-4">
+                                {/* Risk Overview */}
+                                <div className="flex items-center gap-4 p-4 bg-dark-800/50 rounded-lg">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <span className="text-slate-400">Risk Level:</span>
+                                            <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getBiasRiskColor(biasAnalysis.bias_risk_level)}`}>
+                                                {biasAnalysis.bias_risk_level.toUpperCase()}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-slate-400">Bias Score:</span>
+                                            <div className="flex-1 max-w-xs">
+                                                <div className="h-2 bg-dark-700 rounded-full overflow-hidden">
+                                                    <div
+                                                        className={`h-full transition-all ${biasAnalysis.bias_score >= 60 ? 'bg-red-500' :
+                                                                biasAnalysis.bias_score >= 30 ? 'bg-yellow-500' : 'bg-green-500'
+                                                            }`}
+                                                        style={{ width: `${Math.min(biasAnalysis.bias_score, 100)}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <span className="text-slate-300 font-medium">{biasAnalysis.bias_score.toFixed(1)}%</span>
+                                        </div>
+                                    </div>
+                                    {biasAnalysis.flags.length > 0 && (
+                                        <button
+                                            onClick={() => setShowBiasDetails(!showBiasDetails)}
+                                            className="flex items-center gap-2 text-primary-400 hover:text-primary-300 transition-colors"
+                                        >
+                                            {showBiasDetails ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                                            {showBiasDetails ? 'Hide' : 'Show'} Details
+                                        </button>
+                                    )}
+                                </div>
+
+                                {/* Detailed Analysis */}
+                                {showBiasDetails && (
+                                    <div className="space-y-4">
+                                        {/* Summary */}
+                                        {biasAnalysis.summary && (
+                                            <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                                                <p className="text-slate-200">{biasAnalysis.summary}</p>
+                                            </div>
+                                        )}
+
+                                        {/* Flags */}
+                                        {biasAnalysis.flags.length > 0 && (
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-slate-50 mb-3 flex items-center gap-2">
+                                                    <AlertTriangle className="w-5 h-5 text-yellow-400" />
+                                                    Detected Issues ({biasAnalysis.flags.length})
+                                                </h3>
+                                                <div className="space-y-2">
+                                                    {biasAnalysis.flags.map((flag, idx) => (
+                                                        <div key={idx} className="p-3 bg-dark-800/50 rounded-lg border border-yellow-500/20">
+                                                            <div className="flex items-start gap-2">
+                                                                <AlertTriangle className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
+                                                                <div className="flex-1">
+                                                                    <p className="text-slate-200 font-medium">{flag.text}</p>
+                                                                    {flag.suggestion && (
+                                                                        <p className="text-sm text-slate-400 mt-1">💡 {flag.suggestion}</p>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* AI Recommendations */}
+                                        {biasAnalysis.recommendations && biasAnalysis.recommendations.length > 0 && (
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-slate-50 mb-3 flex items-center gap-2">
+                                                    <Lightbulb className="w-5 h-5 text-primary-400" />
+                                                    AI Recommendations
+                                                </h3>
+                                                <ul className="space-y-2">
+                                                    {biasAnalysis.recommendations.map((rec, idx) => (
+                                                        <li key={idx} className="flex items-start gap-2 text-slate-300">
+                                                            <span className="text-primary-400 mt-1">•</span>
+                                                            <span>{rec}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+
+                                        {/* Best Practices */}
+                                        {biasAnalysis.best_practices && biasAnalysis.best_practices.length > 0 && (
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-slate-50 mb-3 flex items-center gap-2">
+                                                    <Shield className="w-5 h-5 text-green-400" />
+                                                    Best Practices
+                                                </h3>
+                                                <ul className="space-y-2">
+                                                    {biasAnalysis.best_practices.map((practice, idx) => (
+                                                        <li key={idx} className="flex items-start gap-2 text-slate-300">
+                                                            <span className="text-green-400 mt-1">✓</span>
+                                                            <span>{practice}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {biasAnalysis.flags.length === 0 && (
+                                    <div className="text-center py-8">
+                                        <Shield className="w-16 h-16 mx-auto text-green-400 mb-3" />
+                                        <h3 className="text-lg font-semibold text-slate-50 mb-2">No Bias Detected</h3>
+                                        <p className="text-slate-400">This job posting appears to use inclusive language.</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {!biasAnalysis && (
+                            <div className="text-center py-12">
+                                <Shield className="w-16 h-16 mx-auto text-slate-600 mb-4" />
+                                <p className="text-slate-400 mb-2">No bias analysis performed yet</p>
+                                <p className="text-sm text-slate-500">Click "Analyze for Bias" to check this job posting for biased language</p>
                             </div>
                         )}
                     </div>

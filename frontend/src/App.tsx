@@ -18,10 +18,13 @@ import CreateJobPage from './pages/jobs/CreateJobPage';
 import JobDetailPage from './pages/jobs/JobDetailPage';
 import ResumesListPage from './pages/resumes/ResumesListPage';
 import UploadResumePage from './pages/resumes/UploadResumePage';
+import ResumeDetailPage from './pages/resumes/ResumeDetailPage';
 import ApplicationsListPage from './pages/applications/ApplicationsListPage';
 import ApplicationDetailPage from './pages/applications/ApplicationDetailPage';
 import AnalyticsPage from './pages/analytics/AnalyticsPage';
 import InterviewsListPage from './pages/interviews/InterviewsListPage';
+import InterviewDetailPage from './pages/interviews/InterviewDetailPage';
+import RecommendationsPage from './pages/recommendations/RecommendationsPage';
 
 
 const queryClient = new QueryClient({
@@ -93,6 +96,14 @@ function App() {
               }
             />
             <Route
+              path="/resumes/:id"
+              element={
+                <ProtectedRoute>
+                  <ResumeDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/applications"
               element={
                 <ProtectedRoute>
@@ -121,6 +132,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <InterviewsListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/interviews/:id"
+              element={
+                <ProtectedRoute>
+                  <InterviewDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/recommendations"
+              element={
+                <ProtectedRoute>
+                  <RecommendationsPage />
                 </ProtectedRoute>
               }
             />
