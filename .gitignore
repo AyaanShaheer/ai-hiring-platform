@@ -46,6 +46,7 @@ Thumbs.db
 backend/uploads/*.pdf
 backend/uploads/*.docx
 backend/uploads/*.doc
+backend/generated_resumes/*.pdf
 
 # Logs
 *.log

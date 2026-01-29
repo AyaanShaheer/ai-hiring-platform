@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, resumes, jobs, matching, fraud, bias, recommendations, emails, analytics, interviews
+from app.api.v1.endpoints import auth, resumes, jobs, matching, fraud, bias, recommendations, emails, analytics, interviews, resume_builder
 from app.services.genai_service import GenAIService
 
 api_router = APIRouter()
@@ -15,7 +15,7 @@ api_router.include_router(recommendations.router, prefix="/recommendations", tag
 api_router.include_router(emails.router, prefix="/emails", tags=["emails"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 api_router.include_router(interviews.router, prefix="/interviews", tags=["interviews"])
-
+api_router.include_router(resume_builder.router, prefix="/resume-builder", tags=["resume-builder"])
 
 @api_router.get("/test")
 async def test_endpoint():

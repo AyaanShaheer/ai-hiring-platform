@@ -26,6 +26,12 @@ import InterviewsListPage from './pages/interviews/InterviewsListPage';
 import InterviewDetailPage from './pages/interviews/InterviewDetailPage';
 import RecommendationsPage from './pages/recommendations/RecommendationsPage';
 
+// Resume Builder Pages
+import ResumeBuilderPage from './pages/resume-builder/ResumeBuilderPage';
+import TemplateSelectionPage from './pages/resume-builder/TemplateSelectionPage';
+import CreateResumePage from './pages/resume-builder/CreateResumePage';
+import ResumeBuilderDetailPage from './pages/resume-builder/ResumeDetailPage';
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -148,6 +154,38 @@ function App() {
               element={
                 <ProtectedRoute>
                   <RecommendationsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/resume-builder"
+              element={
+                <ProtectedRoute>
+                  <ResumeBuilderPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/resume-builder/templates"
+              element={
+                <ProtectedRoute>
+                  <TemplateSelectionPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/resume-builder/create"
+              element={
+                <ProtectedRoute>
+                  <CreateResumePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/resume-builder/:id"
+              element={
+                <ProtectedRoute>
+                  <ResumeBuilderDetailPage />
                 </ProtectedRoute>
               }
             />
